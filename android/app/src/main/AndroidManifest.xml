@@ -4,6 +4,7 @@
 
     <!-- ✅ הרשאות נדרשות -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
@@ -11,8 +12,10 @@
 
 
     <application
+        android:usesCleartextTraffic="true"
         android:label="shift_app"
         android:icon="@mipmap/ic_launcher">
+
 
         <!-- ✅ תמיכה ב־HEADLESS עבור background_fetch -->
         <receiver

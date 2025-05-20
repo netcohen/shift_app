@@ -112,12 +112,14 @@ class UpdateService {
             title: Text("🆕 עדכון זמין ($version)"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (changelog.isNotEmpty) Text("מה חדש:\n$changelog"),
                 const SizedBox(height: 12),
                 const Text("האם להתקין את העדכון כעת?"),
               ],
             ),
+
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
