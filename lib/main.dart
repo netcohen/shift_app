@@ -7,6 +7,7 @@ import 'screens/calendar_screen.dart';
 import 'services/local_database_service.dart';
 import 'services/settings_database_service.dart';
 import 'services/google_calendar_service.dart';
+import 'services/update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ void main() async {
         requiresStorageNotLow: false,
         requiredNetworkType: NetworkType.ANY,
       ),
+
       _onBackgroundFetch,
       _onBackgroundFetchTimeout,
     );
@@ -44,11 +46,20 @@ void main() async {
 void _onBackgroundFetch(String taskId) async {
   try {
     final now = DateTime.now();
+
+    // ✅ נבדוק אם זה בדיוק 10 לחודש ב־00:01
+    if (now.day == 10 && now.hour == 0 && now.minute == 1) {
+      print("🚀 בדיקת עדכון גרסה אוטומטית מתבצעת (10 לחודש, 00:01)");
+      await UpdateService.checkAndInstallSilently();
+    }
+
+    // ✅ סנכרון יומן
     await GoogleCalendarService.getEventsForMonth(now);
     print("📡 [BackgroundFetch] סנכרון הושלם");
   } catch (e) {
     print("❌ [BackgroundFetch] שגיאה: $e");
   }
+
   BackgroundFetch.finish(taskId);
 }
 
