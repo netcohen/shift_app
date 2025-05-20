@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "477894848581",
+    "project_id": "shiftapp-459209",
+    "storage_bucket": "shiftapp-459209.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477894848581:android:1f882008a0e4d0ce3ef32c",
+        "android_client_info": {
+          "package_name": "com.shift.app.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "477894848581-dolrbpsnsrorcjjij1l4ovoh90q9f2ju.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shift.app.mobile",
+            "certificate_hash": "f0f55f1e22c49de53919147016b0a7ee2ef429fd"
+          }
+        },
+        {
+          "client_id": "477894848581-4l2mpdgsv0014rm50dvrj6qljenrfdjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU8HTPuSX1wVBS9GE_7EPasucupzcgF84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "477894848581-4l2mpdgsv0014rm50dvrj6qljenrfdjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
