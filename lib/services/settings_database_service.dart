@@ -10,30 +10,60 @@ class SettingsDatabaseService {
 
     _db = await openDatabase(
       path,
-      version: 2,
+      version: 3, // ⬅️ העלינו מ־2 ל־3!
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE roles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE
-          )
-        ''');
+        CREATE TABLE roles (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE
+        )
+      ''');
 
         await db.execute('''
-          CREATE TABLE stations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE
-          )
-        ''');
+        CREATE TABLE stations (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE
+        )
+      ''');
 
         await db.execute('''
-         CREATE TABLE position_metadata (
+        CREATE TABLE position_metadata (
           position_name TEXT PRIMARY KEY,
           code INTEGER
         )
-        ''');
+      ''');
 
         await db.execute('''
+        CREATE TABLE role_metadata (
+          role_name TEXT PRIMARY KEY,
+          code INTEGER,
+          start_time TEXT,
+          end_time TEXT,
+          mode TEXT
+        )
+      ''');
+
+        await db.execute('''
+        CREATE TABLE positions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE
+        )
+      ''');
+
+        await db.execute('''
+        CREATE TABLE role_positions (
+          role_name TEXT NOT NULL,
+          position_name TEXT NOT NULL,
+          PRIMARY KEY (role_name, position_name)
+        )
+      ''');
+
+        // ✅ טבלת חגים תיווצר גם בהתקנה חדשה
+        await createHolidayTable(db);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
           CREATE TABLE role_metadata (
             role_name TEXT PRIMARY KEY,
             code INTEGER,
@@ -42,33 +72,11 @@ class SettingsDatabaseService {
             mode TEXT
           )
         ''');
+        }
 
-        await db.execute('''
-          CREATE TABLE positions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE
-          )
-        ''');
-
-        await db.execute('''
-          CREATE TABLE role_positions (
-            role_name TEXT NOT NULL,
-            position_name TEXT NOT NULL,
-            PRIMARY KEY (role_name, position_name)
-          )
-        ''');
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute('''
-            CREATE TABLE role_metadata (
-              role_name TEXT PRIMARY KEY,
-              code INTEGER,
-              start_time TEXT,
-              end_time TEXT,
-              mode TEXT
-            )
-          ''');
+        if (oldVersion < 3) {
+          // ✅ הוספת טבלת holidays לכל מי שמשדרג מגרסה קודמת
+          await createHolidayTable(db);
         }
       },
     );
@@ -247,5 +255,40 @@ class SettingsDatabaseService {
       return result.first['code'] as int?;
     }
     return null;
+  }
+
+  static Future<void> createHolidayTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS holidays (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT,
+      type TEXT,
+      title TEXT,
+      candles TEXT,
+      havdalah TEXT
+    )
+  ''');
+  }
+
+  static Future<void> clearHolidays() async {
+    final db = _db!;
+    await db.delete('holidays');
+  }
+
+  static Future<void> insertHoliday({
+    required String date,
+    required String type,
+    required String title,
+    String candles = '',
+    String havdalah = '',
+  }) async {
+    final db = _db!;
+    await db.insert('holidays', {
+      'date': date,
+      'type': type,
+      'title': title,
+      'candles': candles,
+      'havdalah': havdalah,
+    });
   }
 }

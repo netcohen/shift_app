@@ -1,7 +1,7 @@
 name: shift_app
 description: Shift tracking app with Google integration
 publish_to: 'none'
-version: 0.5.3+0
+version: 0.5.29+0
 
 environment:
   sdk: ^3.7.2
@@ -28,6 +28,12 @@ dependencies:
   package_info_plus: ^4.1.0
   url_launcher: ^6.2.4
   yaml: ^3.1.1
+  dio: ^5.4.1
+  open_filex: ^4.3.2
+  install_plugin:
+    path: plugins/install_plugin_local
+  external_path: ^2.2.0
+
 
 
 dev_dependencies:

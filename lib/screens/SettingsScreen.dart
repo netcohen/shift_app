@@ -15,12 +15,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   List<String> _stations = [];
   List<String> _positions = [];
   String _appVersion = '';
+  bool _shabbatMode = false;
 
   @override
   void initState() {
     super.initState();
     _loadSettingsData();
     _loadAppVersion();
+    UpdateService.notifyIfVersionChanged(context);
   }
 
   Future<void> _loadSettingsData() async {
@@ -101,8 +103,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text("גרסה נוכחית: $_appVersion"),
+
+                    /// מצב שבת וחג
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("הפעל מצב שבת וחג"),
+                        Switch(
+                          value: _shabbatMode,
+                          onChanged: (val) {
+                            setState(() {
+                              _shabbatMode = val;
+                            });
+                            // ⏳ בעתיד: שמירה במסד נתונים
+                          },
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 8),
+
+                    /// גרסה נוכחית
+                    Text("גרסה נוכחית: $_appVersion"),
+
+                    const SizedBox(height: 8),
+
+                    /// כפתור עדכון
                     ElevatedButton.icon(
                       icon: const Icon(Icons.system_update),
                       label: const Text("בדוק עדכון"),
