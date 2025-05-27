@@ -259,15 +259,17 @@ class SettingsDatabaseService {
 
   static Future<void> createHolidayTable(Database db) async {
     await db.execute('''
-    CREATE TABLE IF NOT EXISTS holidays (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      date TEXT,
-      type TEXT,
-      title TEXT,
-      candles TEXT,
-      havdalah TEXT
-    )
-  ''');
+  CREATE TABLE IF NOT EXISTS holidays (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    start TEXT,
+    end TEXT,
+    year INTEGER,
+    type TEXT,
+    title TEXT,
+    candles TEXT,
+    havdalah TEXT
+  )
+''');
   }
 
   static Future<void> clearHolidays() async {
@@ -276,7 +278,9 @@ class SettingsDatabaseService {
   }
 
   static Future<void> insertHoliday({
-    required String date,
+    required String start,
+    required String end,
+    required int year,
     required String type,
     required String title,
     String candles = '',
@@ -284,11 +288,33 @@ class SettingsDatabaseService {
   }) async {
     final db = _db!;
     await db.insert('holidays', {
-      'date': date,
+      'start': start,
+      'end': end,
+      'year': year,
       'type': type,
       'title': title,
       'candles': candles,
       'havdalah': havdalah,
     });
+  }
+
+  static Future<bool> isYearAlreadySaved(int year) async {
+    final db = _db;
+    if (db == null) return false;
+
+    final result = await db.query(
+      'holidays',
+      where: 'year = ?',
+      whereArgs: [year],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
+  }
+
+  static Future<List<Map<String, dynamic>>> getAllHolidays() async {
+    final db = _db;
+    if (db == null) return [];
+    return await db.query('holidays');
   }
 }

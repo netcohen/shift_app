@@ -8,6 +8,7 @@ import '../models/calendar_event.dart';
 import '../services/sync_utils.dart';
 import 'package:shift_app/screens/ShiftInputScreen.dart';
 import 'package:shift_app/screens/SettingsScreen.dart';
+import '../services/backup_service.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -27,7 +28,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     scopes: [
       'email',
       'https://www.googleapis.com/auth/calendar.readonly',
-      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive.appdata',
     ],
   );
 
@@ -65,7 +66,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final account = await _googleSignIn.signIn();
       if (account != null) {
         setState(() => _user = account);
-        _loadEvents();
+
+        // ✅ שחזור קבצים מהגיבוי
+        await BackupService.restoreDatabases();
+
+        // ✅ טען את האירועים מהמסד המשוחזר
+        await _loadEvents();
       }
     } catch (e) {
       debugPrint("Sign-in failed: $e");

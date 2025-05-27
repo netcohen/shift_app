@@ -8,9 +8,11 @@ import 'services/local_database_service.dart';
 import 'services/settings_database_service.dart';
 import 'services/google_calendar_service.dart';
 import 'services/update_service.dart';
+import 'services/backup_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await BackupService.restoreDatabases();
   await initializeDateFormatting('he');
   await SettingsDatabaseService.init();
   await LocalDatabaseService.init();

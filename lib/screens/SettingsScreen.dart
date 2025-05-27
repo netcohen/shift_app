@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shift_app/services/shift_settings.dart';
 import 'package:shift_app/services/update_service.dart';
+import 'package:shift_app/services/jewish_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../services/backup_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -22,7 +25,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _loadSettingsData();
     _loadAppVersion();
+    _checkGoogleConnection(); // ✅ נוסיף קריאת בדיקה לגוגל
     UpdateService.notifyIfVersionChanged(context);
+  }
+
+  @override
+  void dispose() {
+    try {
+      BackupService.backupDatabases();
+    } catch (e) {
+      print("⚠️ שגיאה במהלך גיבוי ל-Drive: $e");
+    }
+    super.dispose();
+  }
+
+  Future<void> _checkGoogleConnection() async {
+    final isSignedIn = await GoogleSignIn.standard().isSignedIn();
+    if (!isSignedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '❌ לא מחובר לחשבון Google – חלק מהפונקציות לא זמינות',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _loadSettingsData() async {
@@ -32,6 +62,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _stations = data['stations']!;
       _positions = data['positions']!;
     });
+  }
+
+  void _showRawHolidayListDialog() async {
+    // טען את הנתונים לפני ההצגה
+    await JewishService.fetchJewishDates();
+
+    final holidays = await JewishService.getAllHolidays();
+    print("📦 נתוני החגים מה-DB: $holidays");
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("רשימת חגים ושבתות"),
+          content: SingleChildScrollView(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text("חג/שבת")),
+                  DataColumn(label: Text("כניסה")),
+                  DataColumn(label: Text("יציאה")),
+                ],
+                rows:
+                    holidays.map((holiday) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(holiday['title'] ?? '')),
+                          DataCell(Text(holiday['candles'] ?? '')),
+                          DataCell(Text(holiday['havdalah'] ?? '')),
+                        ],
+                      );
+                    }).toList(),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("סגור"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _loadAppVersion() async {
@@ -122,6 +197,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
 
                     const SizedBox(height: 8),
+
+                    ElevatedButton(
+                      onPressed: _showRawHolidayListDialog,
+                      child: const Text("🔍 הצג רשימת חגים ושבתות (פיתוח)"),
+                    ),
 
                     /// גרסה נוכחית
                     Text("גרסה נוכחית: $_appVersion"),

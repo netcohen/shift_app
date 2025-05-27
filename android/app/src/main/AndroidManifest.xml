@@ -2,45 +2,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.shift.app.mobile">
 
-    <!-- ✅ הרשאות נדרשות -->
+    <!-- ✅ הרשאות נדרשות בלבד -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-    android:maxSdkVersion="28"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
 
 
-
+    <!-- 📸 אם בעתיד תרצה לצלם תמונות / להשתמש בגלריה, נוסיף כאן הרשאות מותאמות (read media / camera וכו') -->
 
     <application
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
         android:label="shift_app"
         android:icon="@mipmap/ic_launcher">
 
-
-        <!-- ✅ תמיכה ב־HEADLESS עבור background_fetch -->
+        <!-- ✅ תמיכה ב-HEADLESS עבור background_fetch -->
         <receiver
-    android:name="com.transistorsoft.tsbackgroundfetch.FetchAlarmReceiver"
-    android:enabled="true"
-    android:exported="true"
-    tools:replace="android:exported">
-    <intent-filter>
-        <action android:name="com.transistorsoft.fetchalarm.ACTION" />
-    </intent-filter>
-</receiver>
+            android:name="com.transistorsoft.tsbackgroundfetch.FetchAlarmReceiver"
+            android:enabled="true"
+            android:exported="true"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="com.transistorsoft.fetchalarm.ACTION" />
+            </intent-filter>
+        </receiver>
 
-
-        <service android:name="com.transistorsoft.tsbackgroundfetch.FetchJobService"
+        <service
+            android:name="com.transistorsoft.tsbackgroundfetch.FetchJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
 
-        <receiver android:name="com.transistorsoft.tsbackgroundfetch.BootBroadcastReceiver"
+        <receiver
+            android:name="com.transistorsoft.tsbackgroundfetch.BootBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -74,15 +71,15 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-            <provider
-    android:name="androidx.core.content.FileProvider"
-    android:authorities="${applicationId}.fileProvider"
-    android:exported="false"
-    android:grantUriPermissions="true">
-    <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
-        android:resource="@xml/file_paths" />
-</provider>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 
@@ -93,4 +90,5 @@
             <data android:mimeType="text/plain" />
         </intent>
     </queries>
+
 </manifest>

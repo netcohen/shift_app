@@ -5,10 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:install_plugin/install_plugin.dart'; // ⬅️ חדש
 
 class UpdateService {
   static const _jsonUrl =
@@ -88,47 +86,6 @@ class UpdateService {
     }
   }
 
-  static Future<void> downloadAndInstallApk(String url) async {
-    try {
-      // 📁 קבלת תיקיית אחסון פרטית של האפליקציה (מאושרת תמיד)
-      final directory = await getExternalStorageDirectory();
-      if (directory == null) {
-        throw Exception("❌ לא ניתן לגשת לתיקיית האחסון הפנימית");
-      }
-
-      final savePath = "${directory.path}/app-update.apk";
-      print("⬇️ מוריד את הקובץ מ־$url אל $savePath");
-
-      // ⬇️ ביצוע ההורדה בפועל
-      final response = await Dio().download(
-        url,
-        savePath,
-        options: Options(followRedirects: true),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception("❌ הורדה נכשלה עם קוד ${response.statusCode}");
-      }
-
-      final file = File(savePath);
-      if (!await file.exists()) throw Exception("❌ הקובץ לא נשמר");
-
-      final fileSize = await file.length();
-      if (fileSize < 100 * 1024) {
-        throw Exception("⚠️ קובץ קטן מדי – כנראה הורדה שגויה");
-      }
-
-      print("✅ הורדה הצליחה – מתחיל התקנה...");
-
-      // 🚀 התקנה דרך הפלאגין
-      await InstallPlugin.installApk(savePath);
-
-      print("📦 בקשת התקנה נשלחה – המשתמש יתבקש לאשר");
-    } catch (e) {
-      print("❌ שגיאה בהורדה/התקנה: $e");
-    }
-  }
-
   static Future<void> notifyIfVersionChanged(BuildContext context) async {
     try {
       final info = await PackageInfo.fromPlatform();
@@ -201,18 +158,6 @@ class UpdateService {
               ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(context);
-
-                  try {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("⬇️ מתחיל הורדה...")),
-                    );
-
-                    await UpdateService.downloadAndInstallApk(url);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("⚠️ שגיאה בהתקנת עדכון: $e")),
-                    );
-                  }
                 },
                 child: const Text("התקן"),
               ),

@@ -16,8 +16,20 @@ class _SignInScreenState extends State<SignInScreen> {
       'email',
       'https://www.googleapis.com/auth/calendar.readonly',
       'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive.appdata',
     ],
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _googleSignIn.onCurrentUserChanged.listen((account) {
+      setState(() {
+        _user = account;
+      });
+    });
+    _googleSignIn.signInSilently(); // מנסה להתחבר אוטומטית
+  }
 
   Future<void> _handleSignIn() async {
     try {
